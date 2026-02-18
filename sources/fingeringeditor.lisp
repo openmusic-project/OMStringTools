@@ -385,9 +385,8 @@ The same contextual menu allow to choose to save or not the contents of the pict
                  ((equal inst "Viola") 1)
                  ((equal inst "Cello") 2)
                  (t 0)))
-         (fings (fingerings::get-fingerings midics instr :natural-harmonics t))
+         (fings (fingerings::get-fingerings midics instr :natural-harmonics (harm (controlview self))))
          (res (fingerings::finger-pretty-print fings instr)))
-
     (setf (chord (object self)) (object (chordobj self)))
     (setf (fingerings self) fings)
     (om-set-dialog-item-text (numsol (controlview self)) (format nil "~D" (length fings))) 
@@ -460,6 +459,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 ;=====================
 (defclass fing-controls (3Dborder-view)  
   ((graphic-controls :initform nil :accessor graphic-controls)
+   (harm :initform t :accessor harm)
    (solutions :initform nil :accessor solutions)
    (numsol :initform nil :accessor numsol)
    (color :initform nil :accessor color)
@@ -500,6 +500,19 @@ The same contextual menu allow to choose to save or not the contents of the pict
                                                                    (t (om-set-selected-item-index clef 6)
                                                                       (change-system chrdpanel 'g))
                                                                    )))))
+           (om-make-dialog-item 'om-static-text 
+                                (om-make-point (+ graphics-begin 300) 10)
+                                (om-make-point 120 20) "Natural harmonics:" :font *om-default-font1*)
+           
+           (om-make-dialog-item 'om-check-box (om-make-point (+ graphics-begin 390) 8) (om-make-point 40 15) "" 
+                                          :di-action (om-dialog-item-act item 
+                                                       (if (om-checked-p item)
+                                                           (setf (harm self) t)
+                                                         (setf (harm self) nil)))
+                                          :font *controls-font*
+                                          :checked-p t
+                                          )
+           
            (om-make-dialog-item 'om-static-text 
                                 (om-make-point (+ graphics-begin 470) 10)
                                 (om-make-point 60 20) "Solutions:" :font *om-default-font1*)
