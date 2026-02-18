@@ -56,7 +56,8 @@ The same contextual menu allow to choose to save or not the contents of the pict
   "Cons a Lisp expression that retuns a copy of self when it is evaluated."
   `(when (find-class ',(type-of self) nil)
      (let ((rep (make-instance ',(type-of self) 
-                               :chord (make-instance 'chord :lmidic ',(lmidic (chord self))) 
+                               :chord (make-instance 'chord :lmidic ',(lmidic (chord self)))
+                               :instrument ',(instrument self)
                                )))
        rep
        )))
@@ -65,8 +66,10 @@ The same contextual menu allow to choose to save or not the contents of the pict
   "Cons a Lisp expression that return a copy of self when it is valuated."
   `(let ((rep (make-instance ',(type-of self)
                              :chord ',(chord self)
+                             :instrument ',(instrument self)
                              )))
      (setf (chord rep) ',(chord self))
+     (setf (instrument rep) ',(instrument self))
      rep
      ))
 ;;;;
@@ -149,7 +152,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 (defmethod get-menubar ((self fingeditor)) 
   (list (om-make-menu "File"
-                      (list (om-new-leafmenu "Save Fingering" #'(lambda () (save-pict self)) "s")
+                      (list ;(om-new-leafmenu "Save Fingering" #'(lambda () (save-pict self)) "s");a revoir
                             (om-new-leafmenu "Close" #'(lambda () (om-close-window (window self))) "w")))    
         (om-make-menu "Edit"
                       (list (list 
@@ -420,8 +423,9 @@ The same contextual menu allow to choose to save or not the contents of the pict
          (fings (fingerings::get-fingerings midics instr :natural-harmonics (harm (controlview self))))
          (res (fingerings::finger-pretty-print fings instr)))
     (setf (chord (object self)) (object (chordobj self)))
+    (setf (instrument (object self)) (format nil "~A" (instrument self)))
+    (om-set-dialog-item-text (numsol (controlview self)) (format nil "~D" (length fings)))
     (setf (fingerings self) fings)
-    (om-set-dialog-item-text (numsol (controlview self)) (format nil "~D" (length fings))) 
     (setf (notes (object self)) midics)
     (setf (solutions (object self)) fings)
     (om-set-dialog-item-text (textobj self) 
@@ -502,7 +506,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 (defclass om-finger-color-view (om-color-view)())
 (defmethod om-view-click-handler ((self om-finger-color-view) pos))
 
-(defmethod initialize-instance :after ((self fing-controls) &rest args)
+(defmethod initialize-instance :after ((self fing-controls) &rest args) 
   (let ((graphics-begin 250)
         (editor (om-view-container self)))
     (setf (graphic-controls self)
@@ -517,6 +521,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
                                                    "" 
                                                    :font *om-default-font1*
                                                    :range '("Violin" "Viola" "Cello")
+                                                   :value (instrument (object (om-view-container self)))
                                                    :di-action (om-dialog-item-act item 
                                                                 (setf (instrument editor) (om-get-selected-item item))
                                                                 (let ((inst (instrument editor))
