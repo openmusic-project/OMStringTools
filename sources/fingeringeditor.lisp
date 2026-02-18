@@ -245,16 +245,48 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 (defmethod om-draw-contents ((self fingpanel))
   (let* ((editor (editor self))
-        (sols (fingerings editor))
-        (all (om-get-selected-item (solutions (controlview editor))))
-        (indx (om-get-selected-item-index (solutions (controlview editor)))))
-    ;picture
+         (sols (fingerings editor))
+         (all (om-get-selected-item (solutions (controlview editor))))
+         (indx (om-get-selected-item-index (solutions (controlview editor))))
+         (clrindx (if (= 0 indx) *om-black-color* (nth (1- indx) *finger-colors*))))
+    
+
+    ;legende
+    ;open
+    (om-with-focused-view self
+      (om-with-line-size 2
+        (om-with-fg-color self clrindx
+          (om-draw-ellipse 740 680 5 5))
+        (om-draw-string 760 685 "Open string")
+        )
+      (om-draw-rect 698 658 262 100)
+      )
+    ;stopped
+    (om-with-focused-view self
+      (om-with-line-size 2
+        (om-with-fg-color self clrindx
+          (om-draw-ellipse 740 700 5 5)
+          (om-fill-ellipse 740 700 5 5)
+          )
+        (om-draw-string 760 705 "Stopped string")
+        ))
+    ;harmonic
+    (om-with-focused-view self
+      (om-with-line-size 2
+        (om-with-fg-color self clrindx
+          (om-draw-rect (- 740 5) (- 720 5) 10 10 :pensize 2))
+        (om-draw-string 760 725 "Natural harmonic")
+        ))
+    
+    
+;picture
     (om-with-focused-view
-    (om-with-fg-color self *om-dark-gray-color*
-    (om-draw-picture self *violinpict* 
-                     :pos (om-make-point 640 -185)
-                     :size (om-make-point 380 800)
-                     )))
+        (om-with-fg-color self *om-dark-gray-color*
+          (om-draw-picture self *violinpict* 
+                           :pos (om-make-point 640 -185)
+                           :size (om-make-point 380 800)
+                           )))
+
     (om-with-focused-view self
       ;cordes
       (om-with-line-size 4
@@ -272,17 +304,17 @@ The same contextual menu allow to choose to save or not the contents of the pict
               for i = 0  then (+ i 20)         
               do (om-draw-line 800 (+ i 60) 860 (+ i 60))
                  )))
-;;;;;
-;;doigtes
-(when sols
-  (if (equal  all "All")
-  (loop for i in sols
-        for n from 1 to (length sols)
-          do (loop for s in i
-                   do (draw-a-finger self s (1- n))))
-    (loop for s in (nth (1- indx) sols)
-          do (draw-a-finger self s (1- indx)))
-))))
+    ;;;;;
+    ;;doigtes
+    (when sols
+      (if (equal  all "All")
+          (loop for i in sols
+                for n from 1 to (length sols)
+                do (loop for s in i
+                         do (draw-a-finger self s (1- n))))
+        (loop for s in (nth (1- indx) sols)
+              do (draw-a-finger self s (1- indx)))
+        ))))
 
 
 
