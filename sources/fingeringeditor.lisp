@@ -181,6 +181,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 (defmethod initialize-instance :after ((self fingeditor) &rest args) 
   (let* ((chord (chord (object self))); (make-instance 'chord)))
+         (instr (instrument (object self)))
          (midics (lmidic chord)))
     (om-set-bg-color self (om-make-color 0.8 0.8 0.8))
     (om-add-subviews self
@@ -220,6 +221,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
                           
                           
                      )
+    (setf (instrument self) instr)
     ;center chord staff
     (score-top-margin (panel (chordobj self)) 6)
       
