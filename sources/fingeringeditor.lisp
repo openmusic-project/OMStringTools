@@ -541,7 +541,10 @@ The same contextual menu allow to choose to save or not the contents of the pict
                                 (om-make-point (+ graphics-begin 300) 10)
                                 (om-make-point 120 20) "Natural harmonics:" :font *om-default-font1*)
            
-           (om-make-dialog-item 'om-check-box (om-make-point (+ graphics-begin 390) 8) (om-make-point 40 15) "" 
+           (om-make-dialog-item 'om-check-box 
+                                #-win32(om-make-point (+ graphics-begin 390) 8)
+                                #+win32(om-make-point (+ graphics-begin 410) 12)
+                                (om-make-point 40 15) "" 
                                           :di-action (om-dialog-item-act item 
                                                        (if (om-checked-p item)
                                                            (setf (harm self) t)
@@ -555,13 +558,13 @@ The same contextual menu allow to choose to save or not the contents of the pict
                                 (om-make-point 60 20) "Solutions:" :font *om-default-font1*)
            
            (setf (numsol self) (om-make-dialog-item 'om-static-text ;edit-numbox 
-                                (om-make-point (+ graphics-begin 540) 8)
+                                #-win32(om-make-point (+ graphics-begin 540) 8)
+                                #+win32(om-make-point (+ graphics-begin 540) 10)
                                 (om-make-point 40 20)
                                 "0" 
-                                :font *om-default-font3*
-                                                              
+                                :font *om-default-font3*                           
                                 ))
-
+           
            (setf (solutions self) (om-make-dialog-item 'om-pop-up-dialog-item
                                                        (om-make-point (+ graphics-begin 580) 8)
                                                        (om-make-point 60 20)
