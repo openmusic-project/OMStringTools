@@ -244,7 +244,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
        "vl" 'full 
        (namestring (make-pathname :directory 
                                   (append (pathname-directory 
-                                           (lib-pathname (find-library "OMFingerings"))) 
+                                           (lib-pathname (find-library "OMStringTools"))) 
                                           (list "resources" "pict"))))))
 
 
