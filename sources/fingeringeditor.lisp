@@ -427,6 +427,8 @@ The same contextual menu allow to choose to save or not the contents of the pict
     (setf (chord (object self)) (object (chordobj self)))
     (setf (instrument (object self)) (format nil "~A" (instrument self)))
     (om-set-dialog-item-text (numsol (controlview self)) (format nil "~D" (length fings)))
+    (setf (color (color (controlview self))) *om-light-gray-color*)
+    (om-set-bg-color (color (controlview self)) *om-light-gray-color*)
     (setf (fingerings self) fings)
     (setf (notes (object self)) midics)
     (setf (solutions (object self)) fings)
