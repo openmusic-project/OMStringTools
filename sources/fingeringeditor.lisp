@@ -107,12 +107,6 @@ The same contextual menu allow to choose to save or not the contents of the pict
 ;  (list (om-new-leafmenu  "Set as Background Fingering" #'(lambda () (pict2bkg self)))
 ;        (pict-save-menu (object self))))
 
-;disabled
-;(defun pict-save-menu (box)
-;  (om-new-leafmenu (if (get-edit-param box 'save-data) "Do Not Save Fingering Data with Patch" "Save Fingering Data with Patch")
-;                   #'(lambda () (set-edit-param box 'save-data (not (get-edit-param box 'save-data)))
-;                       (setf (storemode (value box)) (if (get-edit-param box 'save-data) :internal :external)))))
-
 (defun pict-save-menu (box)
   (om-new-leafmenu (if (equal (storemode (value box)) :internal) "Do Not Save Fingering Data with Patch" "Save Fingering Data with Patch")
                    #'(lambda () 
@@ -142,7 +136,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
    (selection :initform nil :accessor selection)
    (controlview :initform nil :accessor controlview)))
 
-(defclass fingpanel (om-view om-drag-view om-drop-view) ())
+(defclass fingpanel (om-view) ())
 
 (defmethod editor ((self fingpanel)) (om-view-container self))
 
@@ -164,9 +158,6 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;taille fenetre: 1020x864
-
-
 (defmethod get-win-ed-size ((self fingerboard) ) (om-make-point 1122 866))
 (defmethod get-win-ed-size2 ((self fingerboard)) (om-make-point 1122 866))
 
@@ -180,7 +171,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
      win))
 
 (defmethod initialize-instance :after ((self fingeditor) &rest args) 
-  (let* ((chord (chord (object self))); (make-instance 'chord)))
+  (let* ((chord (chord (object self)))
          (instr (instrument (object self)))
          (midics (lmidic chord)))
     (om-set-bg-color self (om-make-color 0.8 0.8 0.8))
@@ -233,7 +224,6 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 (defparameter *finger-colors*
   (list 
-   ;*om-light-gray-color*
    *om-red-color* *om-blue-color* *om-green-color*
         *om-pink-color* *om-orange-color* *om-light-blue-color*
         *om-yellow-color* *om-salmon-color*))
@@ -254,8 +244,6 @@ The same contextual menu allow to choose to save or not the contents of the pict
          (all (om-get-selected-item (solutions (controlview editor))))
          (indx (om-get-selected-item-index (solutions (controlview editor))))
          (clrindx (if (= 0 indx) *om-black-color* (nth (1- indx) *finger-colors*))))
-    
-
     ;legende
     ;open
     (om-with-focused-view self
@@ -282,24 +270,19 @@ The same contextual menu allow to choose to save or not the contents of the pict
           (om-draw-rect (- 740 5) (- 720 5) 10 10 :pensize 2))
         (om-draw-string 760 725 "Natural harmonic")
         ))
-    
-    
-;picture
+    ;picture
     (om-with-focused-view self
         (om-with-fg-color self *om-dark-gray-color*
           (om-draw-picture self *violinpict* 
                            :pos (om-make-point 640 -185)
                            :size (om-make-point 380 800)
                            )))
-
     (om-with-focused-view self
       ;cordes
       (om-with-line-size 4
         (loop for n from 1 to 4 
               for i = 0  then (+ i 20)   
               do  (om-draw-line (+ i 800) 60 (+ i 800) 600))         
-
-        ;(om-draw-rect 705 40 250 600)
         (om-draw-rect 698 58 262 556)
         ))
     ;frettes
@@ -319,8 +302,8 @@ The same contextual menu allow to choose to save or not the contents of the pict
                          do (draw-a-finger self s (1- n))))
         (loop for s in (nth (1- indx) sols)
               do (draw-a-finger self s (1- indx)))
-        ))))
-
+        ))
+    ))
 
 
 (defmethod draw-a-finger ((self fingpanel) lst n)
@@ -352,7 +335,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod update-subviews ((self fingeditor)) ;(om-inspect self)
+(defmethod update-subviews ((self fingeditor))
   (let ((pict (thedata (object self)))
         (vw (w self)) (vh (- (h self) 40)))
     (if pict
@@ -374,7 +357,6 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 (defmethod handle-key-event ((self fingpanel) key) 
   (let ((chrd (panel (chordobj (editor self)))))
-    ;(print (list "handle" self (editor self) (panel (chordobj (editor self))) key))
     (cond ((and (equal (mode (editor self)) :text) *draw-text*)
            (cond ((equal key :om-key-delete)
                   (unless (= 0 (length (cadr *draw-text*))) 
@@ -442,50 +424,13 @@ The same contextual menu allow to choose to save or not the contents of the pict
                           (reverse res))))
     ))
 
-;fingerings::get-fingerings
 
 
-(defmethod om-view-click-handler ((self fingpanel) pos) ;(print (list "clic" self pos))
-  (unless (equal (mode (editor self)) :normal) (setf (selection (editor self)) nil))
-  (unless (equal (mode (editor self)) :polygon) (setf *draw-polyg* nil))
-  (case (mode (editor self))
-    (:normal (call-next-method)) ;(move-pict-object self pos))
-    (:pen (add-pen-extra self pos))
-    (:line (add-line-extra self pos))
-    (:arrow (add-fleche-extra self pos))
-    (:rect (add-rect-extra self pos))
-    (:ellipse (add-cerc-extra self pos))
-    (:polygon (polygon-extra-clic self pos))
-    (:text (text-extra-clic self pos))
-    (otherwise t))
+(defmethod om-view-click-handler ((self fingpanel) pos) (print (list "clic" self pos))
   (report-modifications self)
-  (om-invalidate-view self))
+  (om-invalidate-view self)
+)
 
-(defmethod om-click-motion-handler ((self fingpanel) pos)
-  (unless (equal (mode (editor self)) :normal) (setf (selection (editor self)) nil))
-  (when (and (equal (mode (editor self)) :pen) *draw-pen*)
-    (let ((pt (list (/ (om-point-h pos) (w self)) (/ (om-point-v pos) (h self))))
-          (lastpt (car (last *draw-pen*))))
-          (unless (and (= (car lastpt) (car pt)) (= (cadr pt) (cadr lastpt)))
-            (pushr pt *draw-pen*)))
-    (om-invalidate-view self)))
-
-
-
-(defmethod om-click-release-handler ((self fingpanel) pos)
-  (unless (equal (mode (editor self)) :normal) (setf (selection (editor self)) nil))
-  (when (and (equal (mode (editor self)) :pen) *draw-pen*)
-    (let ((ctrl (controlview (editor self))))
-      (pushr (list 'pen 
-                  (copy-list *draw-pen*)
-                  (list (currentcolor ctrl) (currentsize ctrl)
-                        (if (equal 'dash (currentline ctrl)) (list (* 2 (currentsize ctrl)) (* 2(currentsize ctrl))) (currentline ctrl))
-                        (currentfill ctrl))
-                  nil)
-            (extraobjs (object (editor self))))))
-  (setf *draw-pen* nil)
-  (report-modifications (editor self))
-  (om-invalidate-view self))
 
 ;peut-etre pas terrible
 (defmethod om-view-click-handler ((self chordpanel) pos) 
