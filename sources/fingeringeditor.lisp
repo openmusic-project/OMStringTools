@@ -285,7 +285,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
     
     
 ;picture
-    (om-with-focused-view
+    (om-with-focused-view self
         (om-with-fg-color self *om-dark-gray-color*
           (om-draw-picture self *violinpict* 
                            :pos (om-make-point 640 -185)
@@ -546,7 +546,8 @@ The same contextual menu allow to choose to save or not the contents of the pict
                                 (om-make-point 120 20) "Natural harmonics:" :font *om-default-font1*)
            
            (om-make-dialog-item 'om-check-box 
-                                #-win32(om-make-point (+ graphics-begin 390) 8)
+                                #+linux(om-make-point (+ graphics-begin 390) 8)
+                                #+macosx(om-make-point (+ graphics-begin 410) 10)
                                 #+win32(om-make-point (+ graphics-begin 410) 12)
                                 (om-make-point 40 15) "" 
                                           :di-action (om-dialog-item-act item 
