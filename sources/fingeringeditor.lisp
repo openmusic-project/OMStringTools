@@ -426,7 +426,7 @@ The same contextual menu allow to choose to save or not the contents of the pict
 
 
 
-(defmethod om-view-click-handler ((self fingpanel) pos) (print (list "clic" self pos))
+(defmethod om-view-click-handler ((self fingpanel) pos)
   (report-modifications self)
   (om-invalidate-view self)
 )
